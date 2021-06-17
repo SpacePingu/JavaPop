@@ -5,11 +5,19 @@
  */
 package interfaz;
 
-import java.io.FileInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import logica.FacturasMetodos;
+import logica.Tienda;
+import static logica.Tienda.tienda;
+import logica.Usuarios;
 import static logica.Usuarios.clientes;
 
 /**
@@ -23,16 +31,19 @@ public class Admin extends javax.swing.JFrame {
      */
     public Admin() {
         initComponents();
+        this.setLocationRelativeTo(null);
 
         Path currentRelativePath = Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString();
-        ImageIcon img = new ImageIcon(s + "\\src\\iconos\\JavaPop_logo_.png");
+        ImageIcon img = new ImageIcon(s + "\\src\\logos\\logo32.png");
         this.setIconImage(img.getImage());
 
         System.out.println(clientes);
 
         rellenarUsuarios();
-//        rellenarTienda();
+        rellenarTienda();
+        rellenarControlFacturas();
+
     }
 
     public void rellenarUsuarios() {
@@ -55,26 +66,55 @@ public class Admin extends javax.swing.JFrame {
             model.addRow(rowData);
         }
     }
-//    public void rellenarTienda(){
-//     DefaultTableModel model = (DefaultTableModel) jTableUsers.getModel();
-//     Object rowData[]= new Object[11];
-//     for(int i=0; i<clientes.size(); i++){
-//          
-//     rowData[0]= clientes.get(i).getDni();
-//     rowData[1]= clientes.get(i).getNombre();
-//     rowData[2]= clientes.get(i).getCorreo();
-//     rowData[3]= clientes.get(i).getClave();
-//     rowData[4]= clientes.get(i).getCiudad();
-//     rowData[5]= clientes.get(i).getCodigo_postal();
-//     rowData[6]= clientes.get(i).getTarjeta_credito();
-//     rowData[7]= clientes.get(i).isPremium();
-//     rowData[8]= clientes.get(i).getDescripcion();
-//     rowData[9]= clientes.get(i).getHorario();
-//     rowData[10]= clientes.get(i).getTelefono();
-//     rowData[11]= clientes.get(i).getWeb();
-//     model.addRow(rowData);
-//    }
-//    }
+
+    public void rellenarTienda() {
+        DefaultTableModel model = (DefaultTableModel) jTableProductos.getModel();
+        Object rowData[] = new Object[10];
+        for (int i = 0; i < tienda.size(); i++) {
+
+            rowData[0] = tienda.get(i).getId();
+            rowData[1] = tienda.get(i).getVendedor().getNombre();
+            rowData[2] = tienda.get(i).getTitulo();
+            rowData[3] = tienda.get(i).getPrecio();
+            rowData[4] = tienda.get(i).getDescripcion();
+            rowData[5] = tienda.get(i).getCategoria();
+            rowData[6] = tienda.get(i).getCondicion();
+
+            switch (tienda.get(i).getEstado()) {
+                case 0:
+                    rowData[7] = "En venta";
+                    break;
+                case 1:
+                    rowData[7] = "Reservado";
+                    break;
+                case 2:
+                    rowData[7] = "En proceso de compra";
+                    break;
+                default:
+                    rowData[7] = "Vendido";
+                    continue;
+            }
+            rowData[8] = tienda.get(i).getUbicacionCiudad() + ", " + tienda.get(i).getUbicacionCP();
+            rowData[9] = tienda.get(i).getFecha();
+            model.addRow(rowData);
+        }
+    }
+
+    public void rellenarControlFacturas() {
+        DefaultTableModel model = (DefaultTableModel) jTableFacturas.getModel();
+        Object rowData[] = new Object[5];
+        for (int i = 0; i < FacturasMetodos.facturas.size(); i++) {
+
+            rowData[0] = FacturasMetodos.facturas.get(i).getFechaVenta();
+            rowData[1] = FacturasMetodos.facturas.get(i).getTitulo();
+            rowData[2] = FacturasMetodos.facturas.get(i).getVendedor().getCorreo();
+            rowData[3] = FacturasMetodos.facturas.get(i).getComprador().getCorreo();
+            rowData[4] = FacturasMetodos.facturas.get(i).getPrecio();
+
+            model.addRow(rowData);
+        }
+
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -89,14 +129,26 @@ public class Admin extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTableUsers = new javax.swing.JTable();
+        jButtonBANHAMMER = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTableProductos = new javax.swing.JTable();
+        jButtonEliminarProd = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTableFacturas = new javax.swing.JTable();
+        jPanel4 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextFacturaEscrita = new javax.swing.JTextArea();
+        jButtonDescargarFactura = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        jButtonAtras = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("JAVAPOP - ADMIN");
         setLocation(new java.awt.Point(500, 200));
+        setResizable(false);
 
         jTableUsers.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -123,9 +175,24 @@ public class Admin extends javax.swing.JFrame {
         });
         jTableUsers.setToolTipText("");
         jTableUsers.setShowGrid(false);
+        jTableUsers.setShowHorizontalLines(true);
         jTableUsers.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(jTableUsers);
         jTableUsers.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+
+        jButtonBANHAMMER.setText("BAN HAMMER");
+        jButtonBANHAMMER.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonBANHAMMERActionPerformed(evt);
+            }
+        });
+
+        jButton1.setText("Ver productos del Usuario");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -133,30 +200,71 @@ public class Admin extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(220, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1171, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButtonBANHAMMER, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 679, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(151, 151, 151)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 434, Short.MAX_VALUE)
+                .addComponent(jButtonBANHAMMER, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(16, 16, 16))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2)
+                .addContainerGap())
         );
 
         jTabbedPane1.addTab("CONTROL DE USUARIOS", jPanel1);
 
         jTableProductos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "ID", "Vendedor", "Título", "Precio ( € )", "Descripción", "Categoría", "Condicion", "Estado", "Ubicación ", "Fecha"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Double.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTableProductos.setDragEnabled(true);
+        jTableProductos.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(jTableProductos);
+        if (jTableProductos.getColumnModel().getColumnCount() > 0) {
+            jTableProductos.getColumnModel().getColumn(3).setResizable(false);
+            jTableProductos.getColumnModel().getColumn(5).setResizable(false);
+            jTableProductos.getColumnModel().getColumn(6).setResizable(false);
+            jTableProductos.getColumnModel().getColumn(7).setResizable(false);
+            jTableProductos.getColumnModel().getColumn(7).setPreferredWidth(10);
+            jTableProductos.getColumnModel().getColumn(8).setResizable(false);
+            jTableProductos.getColumnModel().getColumn(9).setResizable(false);
+        }
+
+        jButtonEliminarProd.setText("Eliminar Producto");
+        jButtonEliminarProd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonEliminarProdActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -164,21 +272,139 @@ public class Admin extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 794, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(588, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1172, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jButtonEliminarProd, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(20, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 252, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(0, 633, Short.MAX_VALUE)
+                        .addComponent(jButtonEliminarProd, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
 
         jTabbedPane1.addTab("CONTROL DE PRODUCTOS", jPanel3);
 
+        jTableFacturas.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Fecha de venta", "Titulo de producto", "Vendedor", "Comprador", "Precio de venta"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTableFacturas.getTableHeader().setReorderingAllowed(false);
+        jTableFacturas.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jTableFacturasMouseReleased(evt);
+            }
+        });
+        jScrollPane4.setViewportView(jTableFacturas);
+        if (jTableFacturas.getColumnModel().getColumnCount() > 0) {
+            jTableFacturas.getColumnModel().getColumn(0).setResizable(false);
+            jTableFacturas.getColumnModel().getColumn(1).setResizable(false);
+            jTableFacturas.getColumnModel().getColumn(2).setResizable(false);
+            jTableFacturas.getColumnModel().getColumn(3).setResizable(false);
+            jTableFacturas.getColumnModel().getColumn(4).setResizable(false);
+        }
+
+        jPanel4.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jTextFacturaEscrita.setEditable(false);
+        jTextFacturaEscrita.setColumns(20);
+        jTextFacturaEscrita.setRows(5);
+        jScrollPane3.setViewportView(jTextFacturaEscrita);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 636, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 559, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jButtonDescargarFactura.setText("Descargar factura");
+        jButtonDescargarFactura.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jButtonDescargarFactura.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDescargarFacturaActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 668, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(236, 236, 236)
+                        .addComponent(jButtonDescargarFactura, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(40, 40, 40)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(22, 22, 22)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButtonDescargarFactura))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 642, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(31, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("CONTROL FACTURAS", jPanel2);
+
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 36)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("PANEL DE ADMINISTRADOR");
+
+        jButtonAtras.setText("Cerrar sesión de Admin");
+        jButtonAtras.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAtrasActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -191,7 +417,9 @@ public class Admin extends javax.swing.JFrame {
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 513, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(67, 67, 67)
-                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1388, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButtonAtras, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1388, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(81, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -201,24 +429,145 @@ public class Admin extends javax.swing.JFrame {
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTabbedPane1)
-                .addGap(116, 116, 116))
+                .addGap(39, 39, 39)
+                .addComponent(jButtonAtras, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(31, 31, 31))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    //borra un usuario directamente junto con todos los productos asociados
+    private void jButtonBANHAMMERActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBANHAMMERActionPerformed
+
+        String eliminar = (String) jTableUsers.getValueAt(jTableUsers.getSelectedRow(), 2);
+
+        int eliminado = JOptionPane.showConfirmDialog(this, "¿Estás seguro que deseas eliminar este usuario?"
+                + "\n¡¡ Esto eliminará tambien todos los productos asociados a este perfil !!"
+                + "\n¿Seguro que quieres hacerlo?",
+                "AVISO", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        System.out.print(eliminar);
+        if (eliminado == JOptionPane.YES_OPTION) {
+            if (eliminar != null) {
+                for (int i = 0; i < Tienda.tienda.size(); i++) {
+                    if (Tienda.tienda.get(i).getVendedor().getCorreo().equals(eliminar)) {
+                        Tienda.tienda.remove(i);
+                    }
+
+                }
+
+                Usuarios.hashClientes.remove(eliminar);
+                Usuarios.volcarHashMapClientes();
+                Usuarios.guardarClientes();
+                Tienda.guardarTienda();
+
+                Admin a = new Admin();
+                a.setVisible(true);
+                this.dispose();
+                JOptionPane.showMessageDialog(null, "Usuario " + eliminar + " eliminado, "
+                        + "\ntodos sus artículos también se han dado de baja");
+            } else {
+                JOptionPane.showMessageDialog(null, "Ningún usuario seleccionado");
+            }
+        }
+    }//GEN-LAST:event_jButtonBANHAMMERActionPerformed
+
+    private void jButtonAtrasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAtrasActionPerformed
+
+        Log l = null;
+        try {
+            l = new Log();
+        } catch (IOException ex) {
+            Logger.getLogger(Admin.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        l.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButtonAtrasActionPerformed
+    
+    //Elimina el producto y su imagen asociada
+    
+    private void jButtonEliminarProdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEliminarProdActionPerformed
+
+        int eliminar = jTableProductos.getSelectedRow();
+
+        if (eliminar != -1) {
+            int a = JOptionPane.showConfirmDialog(this, "Esto eliminará para siempre la publicación."
+                    + "\n¿Seguro que deseas continuar?",
+                    "AVISO", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+            String id = (String) jTableProductos.getValueAt(eliminar, 0);
+            File f = new File(".\\src\\IconosProductos\\" + id + ".jpg");
+
+            if (a == JOptionPane.YES_OPTION) {
+                try {
+                    f.delete();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                //recarga el ArrayList tienda después de eliminar el deseado.
+                Tienda.tienda.remove(eliminar);
+                Tienda.guardarTienda();
+                Admin b = new Admin();
+                b.setVisible(true);
+                this.dispose();
+                JOptionPane.showMessageDialog(null, "Artículo Eliminado");
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Ningún artículo seleccionado");
+        }
+
+    }//GEN-LAST:event_jButtonEliminarProdActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+// Se mostrará por pantalla toda la información de la factura en directo.
+    private void jTableFacturasMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableFacturasMouseReleased
+        int i = jTableFacturas.getSelectedRow();
+
+        if (i != -1) {
+            jTextFacturaEscrita.setText(FacturasMetodos.facturas.get(i).toString());
+
+        }
+
+    }//GEN-LAST:event_jTableFacturasMouseReleased
+
+    private void jButtonDescargarFacturaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDescargarFacturaActionPerformed
+        int selected = jTableFacturas.getSelectedRow();
+        FacturasMetodos.facturaseleccionada = FacturasMetodos.facturas.get(selected);
+
+        if (selected != -1) {
+            FacturasMetodos.generarFicheroFactura(FacturasMetodos.facturaseleccionada);
+        } else {
+            JOptionPane.showMessageDialog(rootPane, "No has seleccionado ningún artículo");
+        }
+    }//GEN-LAST:event_jButtonDescargarFacturaActionPerformed
 
     /**
      * @param args the command line arguments
      */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButtonAtras;
+    private javax.swing.JButton jButtonBANHAMMER;
+    private javax.swing.JButton jButtonDescargarFactura;
+    private javax.swing.JButton jButtonEliminarProd;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable jTableFacturas;
     private javax.swing.JTable jTableProductos;
     private javax.swing.JTable jTableUsers;
+    private javax.swing.JTextArea jTextFacturaEscrita;
     // End of variables declaration//GEN-END:variables
 }

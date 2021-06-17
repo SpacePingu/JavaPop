@@ -5,10 +5,15 @@
  */
 package interfaz;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import logica.FacturasMetodos;
+import logica.Tienda;
 import logica.Usuarios;
 
 /**
@@ -16,17 +21,33 @@ import logica.Usuarios;
  * @author adryh
  */
 public class Log extends javax.swing.JFrame {
+    
+    Path currentRelativePath = Paths.get("");
+    String s = currentRelativePath.toAbsolutePath().toString();
+    public ImageIcon icono16 = new ImageIcon(s + "\\src\\logos\\logo16px.png");
+    public ImageIcon icono32 = new ImageIcon(s + "\\src\\logos\\logo32px.png");
+    public ImageIcon icono64 = new ImageIcon(s + "\\src\\logos\\logo64px.png");
+    public ImageIcon icono128 = new ImageIcon(s + "\\src\\logos\\logo128px.png");
 
-    /**
-     * Creates new form log
-     */
-    public Log() {
+    public Log() throws IOException {
         initComponents();
-        Path currentRelativePath = Paths.get("");
-        String s = currentRelativePath.toAbsolutePath().toString();
-        ImageIcon img = new ImageIcon(s + "\\src\\iconos\\JavaPop_logo_.png");
-        this.setIconImage(img.getImage());
+        this.setLocationRelativeTo(null);
+        
+        //iconos del programa
+        this.setIconImage(icono32.getImage());
+
+        //Cargamos los datos de Users.dat en el Arraylist Clientes, ubicado en Logica.Usuarios
         Usuarios.cargarClientes();
+        //Creamos un Hasmap a partir del ArrayList clientes para poder comparar en el LogIn
+        Usuarios.crearHashMapClientes();
+
+        Tienda.cargarTienda();
+        Tienda.crearHashMapProductos();
+        
+        FacturasMetodos.cargarFacturas();
+        FacturasMetodos.crearHashMapFacturas();
+        
+//      System.out.print(Tienda.misproductos);
 
     }
 
@@ -46,7 +67,8 @@ public class Log extends javax.swing.JFrame {
         jPassword = new javax.swing.JPasswordField();
         jButtonLOG = new javax.swing.JButton();
         jButtonREG = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jLabIcono = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("JAVAPOP");
@@ -54,14 +76,18 @@ public class Log extends javax.swing.JFrame {
         setLocation(new java.awt.Point(500, 200));
         setResizable(false);
 
-        jPanel1.setBackground(javax.swing.UIManager.getDefaults().getColor("Button.default.background"));
-
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("Email");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Contraseña");
+
+        jPassword.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jPasswordActionPerformed(evt);
+            }
+        });
 
         jButtonLOG.setText("ENTRAR");
         jButtonLOG.addActionListener(new java.awt.event.ActionListener() {
@@ -77,66 +103,80 @@ public class Log extends javax.swing.JFrame {
             }
         });
 
-        jLabel3.setText("JAVAPOP");
+        jLabIcono.setIcon(new javax.swing.ImageIcon(getClass().getResource("/logos/logo128px.png"))); // NOI18N
+        jLabIcono.setText("jLabel4");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabIcono, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabIcono, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(107, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addComponent(jButtonLOG, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(49, 49, 49)
-                        .addComponent(jButtonREG, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextEmail)
-                            .addComponent(jPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(100, 100, 100))
+                .addContainerGap()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jTextEmail)
+                    .addComponent(jPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 276, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(36, 36, 36))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(249, 249, 249)
-                .addComponent(jLabel3)
+                .addGap(117, 117, 117)
+                .addComponent(jButtonLOG, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(49, 49, 49)
+                .addComponent(jButtonREG, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(16, 16, 16)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jTextEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(32, 32, 32)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(61, 61, 61)
+                .addGap(44, 44, 44)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(jTextEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(36, 36, 36)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(jPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(30, 30, 30)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButtonLOG, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButtonREG, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -145,16 +185,31 @@ public class Log extends javax.swing.JFrame {
     private void jButtonLOGActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLOGActionPerformed
         String email = new String(jTextEmail.getText());
         String pass = new String(jPassword.getPassword());
-
-        if (email.equals("admin") && pass.equals("admin")) {
+        
+        if (email.equals("admin@javapop.com") && pass.equals("admin")) {
             Admin a = new Admin();
             a.setVisible(true);
             this.dispose();
 
         } else {
-            JOptionPane.showMessageDialog(jPanel1, "Usuario o contraseña no válido");
-        }
+            if (Usuarios.hashClientes.containsKey(email)) {
 
+                if (Usuarios.hashClientes.get(email).getClave().equals(pass)) {
+                    copiarClienteActual(email);
+                    VentanaPrincipal v = new VentanaPrincipal();
+                    v.setVisible(true);
+                    this.dispose();
+//                    JOptionPane.showMessageDialog(jPanel1, "Bienvenido a JavaPop");
+
+                } else {
+
+                    JOptionPane.showMessageDialog(jPanel1, "Contraseña Incorrecta");
+                }
+            } else {
+
+                JOptionPane.showMessageDialog(jPanel1, "Usuario o contraseña no válido");
+            }
+        }
     }//GEN-LAST:event_jButtonLOGActionPerformed
 
     private void jButtonREGActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonREGActionPerformed
@@ -164,6 +219,10 @@ public class Log extends javax.swing.JFrame {
 
 
     }//GEN-LAST:event_jButtonREGActionPerformed
+
+    private void jPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPasswordActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jPasswordActionPerformed
 
     /**
      * @param args the command line arguments
@@ -196,19 +255,32 @@ public class Log extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Log().setVisible(true);
+                try {
+                    new Log().setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(Log.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
 
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonLOG;
     private javax.swing.JButton jButtonREG;
+    private javax.swing.JLabel jLabIcono;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPasswordField jPassword;
     private javax.swing.JTextField jTextEmail;
     // End of variables declaration//GEN-END:variables
+
+    //Método para guardar en un Objeto tipo Cliente el usuario que se acaba de registrar.
+    private void copiarClienteActual(String email) {
+        Usuarios.clienteActual = Usuarios.hashClientes.get(email);
+        System.out.print("\nEste es el cliente actual:");
+        System.out.print(Usuarios.clienteActual.getNombre());
+    }
 }
